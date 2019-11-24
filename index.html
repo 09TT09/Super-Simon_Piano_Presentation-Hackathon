@@ -353,7 +353,6 @@ function verification(){
   else if(tableauOrdi[comparaison] != tableauJoueur[comparaison]){                       // Si le tableau 'tableauOrdi' à l'emplacement 'comparaison' à une valeur différente de 'tableauJoueur' à l'emplacement 'comparaison' alors... (exemple ( tableauOrdi = [1,3,1] et tableauJoueur = [1,3,2] et comparaison = 2 alors le else if est vrai puisque tableauOrdi[comparaison] = 1 et tableauJoueur[comparaison] = 2 )
     if (init === 1){
     document.getElementById("tour").innerHTML = "Game Over";
-	tour = "Tour de l'Ordi";
 	nombreClick--;
 	document.getElementById("click").innerHTML = nombreClick;
     }	
