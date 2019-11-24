@@ -160,6 +160,8 @@ function Start(){
 // FONCTION RECOMMENCER A JOUER
 
 function redemarrer(){
+  tableauOrdi = [];                                                                            // Tableau 'tableauOrdi' remis à vide
+  tableauJoueur = [];
   arretFunction = 1;                                                                           // Change les valeurs des variable
   joueur = 0;
   compteur = 1;
@@ -184,8 +186,6 @@ function redemarrer(){
   }, 2000);    
 
     setTimeout(function(){
-      tableauOrdi.splice(0, t);                                                               // Dans le tableau "tableauOrdi" supprime "t" valeur (exemple : si t = 3 alors 3 valeurs supprimer) à partir de la valeur 0 du tableau
-      tableauJoueur.splice(0, t);
       t = 1;
       nombreClick = 0;
       comparaison = 0;
@@ -375,7 +375,7 @@ function verification(){
 	document.getElementById('vitesse1').innerHTML = vitesse;
 	document.getElementById('vitesse2').innerHTML = vitesse2;
 	t++;
-	tableauOrdi.splice(0, t);
+	tableauOrdi.splice(0, t);                                                            // Dans le tableau "tableauOrdi" supprime "t" valeur (exemple : si t = 3 alors 3 valeurs supprimer) à partir de la valeur 0 du tableau
 	tableauJoueur.splice(0, t);
     compteur = t;
 	joueur = 0;
