@@ -163,6 +163,7 @@ function redemarrer(){
   arretFunction = 1;                                                                           // Change les valeurs des variable
   joueur = 0;
   compteur = 1;
+  init = 0;
   vitesse = 500;
   vitesse2 = 1000;
   vitesse3 = 3000;
@@ -171,7 +172,6 @@ function redemarrer(){
   document.getElementById('vitesse3').innerHTML = vitesse3;
   if (noSpamredemmarrer === 0){
   noSpamredemmarrer = 1;
-  init = 0;
   document.getElementById('click').innerHTML = nombreClick;
   document.getElementById('manche').innerHTML = "Manche " + 1;
   document.getElementById('note').innerHTML = "Vide";
@@ -352,6 +352,9 @@ function verification(){
   }
   else if(tableauOrdi[comparaison] != tableauJoueur[comparaison]){                       // Si le tableau 'tableauOrdi' à l'emplacement 'comparaison' à une valeur différente de 'tableauJoueur' à l'emplacement 'comparaison' alors... (exemple ( tableauOrdi = [1,3,1] et tableauJoueur = [1,3,2] et comparaison = 2 alors le else if est vrai puisque tableauOrdi[comparaison] = 1 et tableauJoueur[comparaison] = 2 )
     if (init === 1){
+	  if (arretFunction === 1){
+	    return;
+	  }
     document.getElementById("tour").innerHTML = "Game Over";
 	nombreClick--;
 	document.getElementById("click").innerHTML = nombreClick;
