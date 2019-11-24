@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<title>Super-Simon</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  
+  <body>
+    <div class="helpme" id="helpme">
+      <div class="aideboxback"></div>
+	  <div class="aidebox">
+	    <h2 style= "text-align:center;color:red;">Règles :</h2><p>
+   	    <b>Les manches :</b><br><br>
+	    Le jeu comporte des manches.<br>
+	    dans chaque manche il y a 2 phases :<br>
+	    - Le tour de l'Ordi<br>
+	    - Le tour du Joueur<br><br>
+	    <b>Tour de l'Ordi :</b><br><br>
+	    A la manche 1, l'Ordi appuira sur une couleur aléatoire.<br>
+	    A chaque manche suivante l'Ordi :<br>
+	    - Rajoutera une couleur aléatoire<br>
+	    - Augmentera la vitesse à laquelle il cliquera sur les couleurs<br>
+	    - Réduira la durée entre les manches<br><br>
+	    <b>Tour du Joueur :</b><br><br>
+	    Votre but est de :<br>
+	    - Reproduire à l'identique la suite de l'Ordi<br>
+	    - Faire le plus de manche possible<br>
+	    - Réussir le plus de clicks possible<br><br>
+	    <b>Nombre de vie :</b><br><br>	
+	    Vous ne possédez qu'une vie donc pas d'erreur possible.<br><br>
+	    <b>Scores :</b><br><br>	
+	    Tant que vous ne quittez pas la page, les meilleurs scores resterons affichés.<br><br>
+	    <b>Optionnel :</b><br><br>	
+	    (Si j'ai le temps) à la manche 4, 2 nouvelles couleurs apparaîtront augmentant ainsi la difficulté.<br><br>
+	    <b>Bonne chance</b></p>
+	  </div>
+      <div class="quitter" onclick="quitteraide()"><b>Ꭓ</b></div> <!-- Ce n'est pas un problème d'encodage c'est volontaire -->
+	</div>
+	
+    <div class="divleft">
+	  <div class="divcenter">
+        <div class="container">
+          <div class="cerclefond">
+
+		    <div class="cercle2 cerclemagenta" onclick="cliquer(), Sol()"></div> <!-- Ne sera probablement pas utilisé (à part si j'ai le temps de le faire) -->
+					  
+	        <div class="cerclemilieu">
+			
+			<div class="a">
+		      <span id="manche">Manche </span><br>
+		      <span>Nombre de clicks : <span id="click"></span></span><br>
+		      <span>Note précédente : <span id="note"></span></span><br>
+			  <h2><span id="tour"></span></h2>
+			</div>
+			
+			</div>
+            <div id="1" class="cercle cerclerouge" onclick="Do()"></div> <!-- Création d'un cercle avec 2 class et 2 function sur le click -->
+	        <div id="2" class="cercle cerclebleu" onclick="Re()"></div><br>
+	        <div id="3" class="cercle cerclevert" onclick="Mi()"></div>
+	        <div id="4" class="cercle cerclejaune" onclick="Fa()"></div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	  
+	<div class="divright">
+	  <div class="divbuttons">   
+	    <div class="aide" onclick="regles()">?</div>
+	    <button class="restart" id="recommencer" onclick="redemarrer()" style="display:none;">Redémarrer</button>
+		<button class="restart" id="commencer" onclick="Start()">Commencer</button><br><br>
+		<span>Meilleur Score :</span><br><br>
+		<span id="Meilleurnombreclick" style="color:lime;"></span><br>
+		<span id="Meilleurmanche" style="color:lime;"></span><br><br>
+		<span>Vitesse de l'Ordi :</span><br><br>
+		<span>durée touches éclairées : <span id="vitesse1" style="color:lime;"></span> ms</span><br>
+		<span>Délai entre l'appuie de deux touches : <span id="vitesse2" style="color:lime;"></span> ms</span><br>
+		<span>Délai entre les manches : <span id="vitesse3" style="color:lime;"></span> ms</span><br>
+	  </div>
+	</div>
+	
+  </body>
+  
+<script>
+
+// VARIABLES
+
+let nombreClick = 0;                                                                           // Permet de compter le nombre de click(s) réussi
+let meilleurClick = 0;                                                                         // Retient le plus au scores de clicks
+let meilleurManche = 0;                                                                        // Retient la meilleur manche atteinte
+let vitesse = 500;                                                                             // Durée de l'opacité 0.25 maintenue par l'Ordi
+let vitesse2 = 1000;                                                                           // Délai entre chaque click par l'Ordi
+let vitesse3 = 3000;                                                                           // Délai entre chaque nouvelle manche
+let t = 1;                                                                                     // variable permettant de faire diverses choses (exemples : sert à incrémenter le nombre de manches dans le HTML, sert à supprimer 't' valeur dans le tableau)
+let noSpamredemmarrer = 0;                                                                     // Evite les problème lié aux clicks répéter sur les boutons démarrer et redémarrer 
+let init = 0;                                                                                  // Je crois que cette variable ne sert plus à rien maintenant (même si il y a des 'if' avec)(Elle servait à corriger certains problèmes au niveau de l'affichage des tours en HTML il me semble)... (Je la laisse ici au cas où)
+let compteur = 1;                                                                              // Permet à l'Ordi de savoir sur combien de touche il lui reste à appuyer durant cette manche (exemple à la manche 2 compteur = 2, si click sur couleur compteur = compteur - 1)
+let comparaison = 0;                                                                           // Permet de comparer une par une les valeur du tableau
+let joueur = 0;                                                                                // Indique le tour du Joueur (exemple si Joueur === 1 alors Tour du Joueur et si Joueur === 0 alors Tour de l'ordi)
+let arretFunction = 0;                                                                         // Permet d'éviter les erreurs avec d'autres erreurs avec les boutons démarrer et redémarrer (exemple : sort de la fonction et ne dérègle pas les timer des touches lors du Tour de l'Ordi)
+let tour = "Bienvenue";                                                                        // Indique le Tour du joueur sur la page HTML ( cette variable est sous utilisée car j'emploi souvent "document.getElementById('tour').innerHTML = 'Tour du Joueur'" à la place de la variable 'tour')
+let couleurs = ['rouge','bleu','vert','jaune'];                                                // Tableau avec les valeurs 'rouge', 'bleu', 'vert' et 'jaune'
+let couleursv2 = ['magenta','orange'];                                                         // Tableau Non utilisé mais qui devait apparaitre à la manche 4 et rajouter 2 nouvelles couleurs 'magenta' et 'orange'
+let tableauOrdi = [];                                                                          // Tableau vide servant aux comparaisons de tableau avec 'tableauJoueur' (exemple : si touche rouge appuyée par l'Ordi alors tableauOrdi = [1] se réinitialise à chaque nouvelle manche
+let tableauJoueur = [];                                                                        // Tableau vide servant aux comparaisons de tableau avec 'tableauOrdi' (exemple : si touche verte (Fonction Mi()) et bleu (Fonction Ré()) appuyée par le Joueur alors tableauJoueru = [3,2] se réinitialise à chaque nouvelle manche
+
+// INITIALISATION
+
+document.getElementById('click').innerHTML += nombreClick;
+document.getElementById('vitesse1').innerHTML = vitesse;
+document.getElementById('vitesse2').innerHTML = vitesse2;
+document.getElementById('vitesse3').innerHTML = vitesse3;
+document.getElementById('manche').innerHTML += nombreClick;
+document.getElementById('note').innerHTML = "Vide";
+document.getElementById('tour').innerHTML = tour;
+document.getElementById('tour').style.color = "magenta";
+document.getElementById("Meilleurnombreclick").innerHTML = "nombre de click(s) réussi : " + meilleurClick;
+document.getElementById("Meilleurmanche").innerHTML = "nombre de manche(s) réussi  : " + meilleurManche;
+
+// FONCTION AFFICHAGE REGLES
+
+function regles(){                                                                             // Fonction "regles()" activer faire...
+  document.getElementById('helpme').style.display = "initial";                                 // Le document avec l'ID 'helpme' est affiché avec 'style.display = "initial"'
+}                                                                                              // Fin de fonction
+
+// FONCTION QUITTER REGLES
+
+function quitteraide(){                                                                        // Fonction "quitteraide()" activer faire...
+  document.getElementById('helpme').style.display = "none";                                    // Le document avec l'ID 'helpme' est masqué avec 'style.display = "none"'
+}                                                                                              // Fin de fonction
+
+// FONCTION COMMENCER A JOUER
+
+function Start(){
+  if (noSpamredemmarrer === 0){                                                                // Si la variable "noSpamredemmarrer" à pour valeur 0 alors faire...
+    noSpamredemmarrer = 1;                                                                     // Variable noSpamredemmarrer prend la valeur 1
+    document.getElementById('recommencer').style.display = "initial";                          // Le document avec l'ID 'recommencer' est affiché avec 'style.display = "initial"'
+    init = 1;                                                                                  // Variable init prend la valeur 1
+    document.getElementById("commencer").style.display = "none";                               // Le document avec l'ID 'helpme' est masqué avec 'style.display = "none"'
+    document.getElementById("tour").innerHTML = "3";                                           // Le document avec l'ID 'tour' aura la valeur "3" dans le html de la page ( C'est un début de compteur )
+    setTimeout(function(){                                                                     // Attendre ( 1000 ms ) avant d'éxécuter la fonction
+      document.getElementById("tour").innerHTML = "2";                                         // Le document avec l'ID 'tour' aura la valeur "2" dans le html de la page
+    }, 1000);                                                                                  // Ici la durée d'attente est de 1000 ms, fin de la function ( Bon c'est pas très propre pour un compteur temporel... mais bon ça fonctionne )
+    setTimeout(function(){                                                                     // Attendre ( 2000 ms ) avant d'éxécuter la fonction
+      document.getElementById("tour").innerHTML = "1";                                         // Le document avec l'ID 'tour' aura la valeur "1" dans le html de la page
+    }, 2000);                                                                                  // Ici la durée d'attente est de 2000 ms, fin de la function
+
+    setTimeout(function(){                                                                     // Attendre ( 3000 ms ) avant d'éxécuter la fonction
+      document.getElementById("tour").innerHTML = "Tour de l'Ordi";                            // Le document avec l'ID 'tour' aura la valeur "Tour du l'Ordi" dans le html de la page
+	  document.getElementById('manche').innerHTML = "Manche " + t;                             // Le document avec l'ID 'manche' aura la valeur "Manche" + la valeur de la variable "t" dans le html de la page
+      manche();                                                                                // Fonction "manche()" appelé
+	  noSpamredemmarrer = 0;                                                                   // Variable noSpamredemmarrer prend la valeur 0
+    }, 3000);                                                                                  // Ici la durée d'attente est de 3000 ms, fin de la function
+  }                                                                                            // Fin du if
+}                                                                                              // Fonction 'Start()' fin (Bon j'arrête de tout décrire sinon ça va me prendre une éternité)
+ 
+// FONCTION RECOMMENCER A JOUER
+
+function redemarrer(){
+  arretFunction = 1;                                                                           // Change les valeurs des variable
+  joueur = 0;
+  compteur = 1;
+  vitesse = 500;
+  vitesse2 = 1000;
+  vitesse3 = 3000;
+  document.getElementById('vitesse1').innerHTML = vitesse;                                     // Affiche les différentes vitessse du jeu
+  document.getElementById('vitesse2').innerHTML = vitesse2;
+  document.getElementById('vitesse3').innerHTML = vitesse3;
+  if (noSpamredemmarrer === 0){
+  noSpamredemmarrer = 1;
+  init = 0;
+  document.getElementById('click').innerHTML = nombreClick;
+  document.getElementById('manche').innerHTML = "Manche " + 1;
+  document.getElementById('note').innerHTML = "Vide";
+  document.getElementById("tour").innerHTML = "3";
+  setTimeout(function(){
+    document.getElementById("tour").innerHTML = "2";
+  }, 1000);
+  setTimeout(function(){
+    document.getElementById("tour").innerHTML = "1";
+  }, 2000);    
+
+    setTimeout(function(){
+      tableauOrdi.splice(0, t);                                                               // Dans le tableau "tableauOrdi" supprime "t" valeur (exemple : si t = 3 alors 3 valeurs supprimer) à partir de la valeur 0 du tableau
+      tableauJoueur.splice(0, t);
+      t = 1;
+      nombreClick = 0;
+      comparaison = 0;
+  	  init = 1;
+      document.getElementById("tour").innerHTML = "Tour de l'Ordi";  
+	  arretFunction = 0;
+      manche();
+	  noSpamredemmarrer = 0;
+    }, 3000);
+  }
+}
+
+// FONCTION DEBUT NOUVELLE MANCHE ORDI OU POURSUITE DE LA MANCHE ORDI
+
+function manche(){
+  setTimeout(function(){
+    if (compteur != 0){                                                                      // Si variable "compteur" différent de zéro faire...
+	  if (arretFunction === 1){
+	    return;
+	  }
+      joueur = 0;
+      let couleursAleatoire = couleurs[Math.floor(Math.random() * couleurs.length)];         // La variable "couleursAleatoire" prend la valeur du tableau "couleurs" (rouge,bleu...) Math.floor() renvoie le plus grand entier, Math.random()renvoie un nombre aléatoire entre 0 et la valeur avant un (donc 0.9999999999...) et couleurs.length renvoie la valeur 4 puisque le tableau comporte 4 "case" qui sont rouge, bleu, vert et jaune
+	
+	  if (couleursAleatoire === 'rouge'){                                                    // Si variable "couleursAleatoire" à pour valeur 'rouge' faire...
+	    document.getElementsByClassName("cerclerouge")[0].style.opacity = "0.25";            // Le premier élément avec la class "cerclerouge" aura une opacité de "0.25"
+	    tableauOrdi.push('1');                                                               // Rajoute un "1" dans le tableau "tableauOrdi"
+	    sonDo = new Audio('Do.wav');                                                         // La variable "SonDo" est créé et à pour valeur un nouvel audio qui est "Do.wav"
+	    sonDo.play();                                                                        // La variable "SonDo" est jouée
+	    setTimeout(function(){
+	      document.getElementsByClassName("cerclerouge")[0].style.opacity = "1";
+	      manche();                                                                          // Relance la fonction manche
+	    }, vitesse);                                                                         // Durée d'opacité 0.25 ( exemple : à la manche une vitesse vaut 500 donc l'opacité va mettre 500 ms à revenir à la valeur 1)
+	  }
+	
+	  if (couleursAleatoire === 'bleu'){
+	    document.getElementsByClassName("cerclebleu")[0].style.opacity = "0.25";
+	    tableauOrdi.push('2');
+	    sonRe = new Audio('Re.wav');
+	    sonRe.play();
+	    setTimeout(function(){
+	      document.getElementsByClassName("cerclebleu")[0].style.opacity = "1";
+	      manche();
+	    }, vitesse);
+	  }
+	
+	  if (couleursAleatoire === 'vert'){
+	    document.getElementsByClassName("cerclevert")[0].style.opacity = "0.25";
+	    tableauOrdi.push('3');
+	    sonMi = new Audio('Mi.wav');
+	    sonMi.play();
+	    setTimeout(function(){
+	      document.getElementsByClassName("cerclevert")[0].style.opacity = "1";
+	      manche();
+	    }, vitesse);
+	  }
+	
+	  if (couleursAleatoire === 'jaune'){
+	    document.getElementsByClassName("cerclejaune")[0].style.opacity = "0.25";
+	    tableauOrdi.push('4');
+	    sonFa = new Audio('Fa.wav');
+	    sonFa.play();
+	    setTimeout(function(){
+	      document.getElementsByClassName("cerclejaune")[0].style.opacity = "1";
+	      manche();
+	    }, vitesse);
+	  }
+    compteur--;                                                                             // la variable compteur se désincrémente (exemple : compteur = compteur - 1)
+    }
+  }, vitesse2);                                                                             // Délai entre appuie des touches
+  if (compteur === 0){
+	setTimeout(function(){
+	  joueur = 1;
+      document.getElementById("tour").innerHTML = "Votre Tour";
+	}, 1000);
+  }
+}
+
+// FONCTION TOUCHE ROUGE APPUYE
+
+function Do(){                                                                              // Fonction Do (Sur le click du bouton rouge par le Joueur)
+  if (joueur === 1){
+    nombreClick++;                                                                          // nombre de clicks s'incrémente
+    tableauJoueur.push('1');                                                                // rajoute valeur '1' au tableau 'tableauJoueur'
+	document.getElementById('click').innerHTML = nombreClick;
+    document.getElementById(1).style.opacity = "0.25";
+	document.getElementById('note').innerHTML = "Do";
+    sonDo = new Audio('Do.wav');
+    sonDo.play();
+    verification();                                                                         // Appelle de la function 'verification()'
+	setTimeout(function(){
+	  document.getElementById(1).style.opacity = "1";
+	}, 200)
+  }
+}
+
+// FONCTION TOUCHE BLEU APPUYEE
+
+function Re(){
+  if (joueur === 1){
+    nombreClick++;
+    tableauJoueur.push('2');
+	document.getElementById('click').innerHTML = nombreClick;
+    document.getElementById(2).style.opacity = "0.25";
+	document.getElementById('note').innerHTML = "Ré";
+    sonRe = new Audio('Re.wav');
+    sonRe.play();
+    verification();
+	setTimeout(function(){
+	  document.getElementById(2).style.opacity = "1";
+	}, 200)
+  }
+}
+
+// FONCTION TOUCHE VERT APPUYEE
+
+function Mi(){
+  if (joueur === 1){
+    nombreClick++;
+    tableauJoueur.push('3');
+	document.getElementById('click').innerHTML = nombreClick;
+    document.getElementById(3).style.opacity = "0.25";
+	document.getElementById('note').innerHTML = "Mi";
+    sonMi = new Audio('Mi.wav');
+    sonMi.play();
+    verification();
+	setTimeout(function(){
+	  document.getElementById(3).style.opacity = "1";
+	}, 200)
+  }
+}
+
+// FONCTION TOUCHE JAUNE APPUYEE
+
+function Fa(){
+  if (joueur === 1){
+    nombreClick++;
+    tableauJoueur.push('4');
+	document.getElementById('click').innerHTML = nombreClick;
+    document.getElementById(4).style.opacity = "0.25";
+	document.getElementById('note').innerHTML = "Fa";
+    sonFa = new Audio('Fa.wav');
+    sonFa.play();
+    verification();
+	setTimeout(function(){
+	  document.getElementById(4).style.opacity = "1";
+	}, 200)
+  }
+}
+
+// FONCTION VERIFICATION DE TOUCHE APPUYEE
+
+function verification(){ 
+  if(tableauOrdi[comparaison] === tableauJoueur[comparaison]){                           // Si le tableau 'tableauOrdi' à l'emplacement 'comparaison' à une valeur égale à celle de 'tableauJoueur' à l'emplacement 'comparaison' alors...
+	comparaison++;
+	//console.log(comparaison);
+	if (nombreClick > meilleurClick){
+	  meilleurClick = nombreClick;
+	  document.getElementById("Meilleurnombreclick").innerHTML = "nombre de click(s) réussi : " + meilleurClick;
+	}
+	if (t > meilleurManche){
+	  meilleurManche = t;
+	  document.getElementById("Meilleurmanche").innerHTML = "nombre de manche(s) réussi  : " + meilleurManche;
+	}
+  }
+  else if(tableauOrdi[comparaison] != tableauJoueur[comparaison]){                       // Si le tableau 'tableauOrdi' à l'emplacement 'comparaison' à une valeur différente de 'tableauJoueur' à l'emplacement 'comparaison' alors... (exemple ( tableauOrdi = [1,3,1] et tableauJoueur = [1,3,2] et comparaison = 2 alors le else if est vrai puisque tableauOrdi[comparaison] = 1 et tableauJoueur[comparaison] = 2 )
+    if (init === 1){
+    document.getElementById("tour").innerHTML = "Game Over";
+	tour = "Tour de l'Ordi";
+	nombreClick--;
+	document.getElementById("click").innerHTML = nombreClick;
+    }	
+  }
+  
+  if ( JSON.stringify(tableauOrdi) === JSON.stringify(tableauJoueur) ){                  // Si le tableau 'tableauOrdi' (transformé en chaine JSON) à les mêmes valeur que le tableau 'tableauJoueur' faire... ( exemple : si l'ordi à appuyé sur la touche Jaune puis bleu, JSON.stringify(tableauOrdi) = ["4","2"] )
+    if (init === 1){
+      document.getElementById("tour").innerHTML = "Tour de l'Ordi";
+	}
+    document.getElementById("manche").innerHTML = "Manche " + t;
+	if (vitesse > 150){                                                                  // Si la variable 'vitesse' strictement supérieur à 150 alors...
+	  vitesse = vitesse - 43.75;                                                         // réduit la variable 'vitesse' de 43.75 (à la manche 8 la variable 'vitesse' atteint alors la valeur 150 ( 500(valeur initial) - 43.75 * 8 = 150))
+	}
+	if (vitesse2 > 200){
+	  vitesse2 = vitesse2 - 100;
+	}
+	document.getElementById('vitesse1').innerHTML = vitesse;
+	document.getElementById('vitesse2').innerHTML = vitesse2;
+	t++;
+	tableauOrdi.splice(0, t);
+	tableauJoueur.splice(0, t);
+    compteur = t;
+	joueur = 0;
+	comparaison = 0;
+	setTimeout(function(){
+	manche();
+	}, vitesse3);
+    if (vitesse3 > 1000){
+      vitesse3 = vitesse3 - 250;
+	  document.getElementById('vitesse3').innerHTML = vitesse3;
+    }
+  }
+}
+
+
+
+
+
+
+
+
+// ancien code (oui je sais il est pas ouf mais je souhaite le garder au cas où)
+
+/*function redemarrer(){
+  nombreClick = 0;
+  manche = 0;
+  document.getElementById('click').innerHTML = nombreClick;
+  document.getElementById('manche').innerHTML = manche;
+  document.getElementById('note').innerHTML = "Vide";
+}*/
+
+/*
+  if ( tour === "Tour de l'Ordi" ){
+  
+    if ( couleursAleatoire === 'rouge' ){
+      sonDo = new Audio('Do.wav');
+	  sonDo.play();	  
+      document.getElementsByClassName("cerclerouge")[0].style.opacity = "0.25";
+	
+	  let interval = setInterval(function(){
+		let tour = "Tour du Joueur";
+        document.getElementById('tour').innerHTML = tour;
+	    document.getElementsByClassName("cerclerouge")[0].style.opacity = "";
+		tourjoueur();
+      }, 1000);
+    }
+	
+
+
+    else if ( couleursAleatoire === 'bleu'){
+	
+      sonRe = new Audio('Re.wav');
+	  sonRe.play(); 
+	  document.getElementsByClassName("cerclebleu")[0].style.opacity = "0.25";
+
+      let interval = setInterval(function(){
+	    let tour = "Tour du Joueur";
+	    document.getElementById('tour').innerHTML = tour;
+		document.getElementsByClassName("cerclebleu")[0].style.opacity = "";
+		tourjoueur();
+      }, 1000);  
+    }
+
+   else if ( couleursAleatoire === 'vert'){
+      sonMi = new Audio('Mi.wav');
+	  sonMi.play();
+	  document.getElementsByClassName("cerclevert")[0].style.opacity = "0.25";
+
+      let interval = setInterval(function() { 
+	    let tour = "Tour du Joueur";
+		document.getElementById('tour').innerHTML = tour;
+		document.getElementsByClassName("cerclevert")[0].style.opacity = "";
+		tourjoueur();
+      }, 1000);  
+    }
+
+    else if ( couleursAleatoire === 'jaune'){
+      sonFa = new Audio('Fa.wav');
+	  sonFa.play();
+	  document.getElementsByClassName("cerclejaune")[0].style.opacity = "0.25";
+	  
+      setInterval(function() { 
+	    let tour = "Tour du Joueur";
+		document.getElementById('tour').innerHTML = tour;
+		document.getElementsByClassName("cerclejaune")[0].style.opacity = "";	
+		tourjoueur();
+      }, 1000);
+    }  
+  }
+}
+
+function Do(){
+  sonDo = new Audio('Do.wav');
+  sonDo.play();
+  document.getElementById('note').innerHTML = "Do";
+}
+
+function Re(){
+  sonRe = new Audio('Re.wav');
+  sonRe.play();
+  document.getElementById('note').innerHTML = "Ré";
+}
+
+function Mi(){
+  sonMi = new Audio('Mi.wav');
+  sonMi.play();
+  document.getElementById('note').innerHTML = "Mi";
+}
+
+function Fa(){
+  sonFa = new Audio('Fa.wav');
+  sonFa.play();
+  document.getElementById('note').innerHTML = "Fa";
+}
+*/
+
+</script>
+ 
+<html>
